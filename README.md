@@ -41,3 +41,4 @@ example: *tfplan* - пример, с помощью которого можно 
 .terraformrc - файлы с конкретным названием
 
 terraform.rc - файлы с конкретным названием и расширениемnew line
+new line

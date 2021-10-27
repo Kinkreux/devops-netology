@@ -95,45 +95,54 @@ result_os = os.popen(' && '.join(bash_command)).read()
 
 **Ответ:**
 
-Выносить сервера в переменную не стала, не было в задании. Не стала ограничивать количество итераций, оно по факту ограничено расхождением IP адресов и после этого проверки заканчиваются (так вроде бы по заданию).
+Вроде более-менее я победила эту штуку. Да, ошибки сыпятся по 3 штуки (я думаю, цикл проверки на совпадение IP сделан неоптимально, стоило сравнивать попарно, но я уже боюсь переделывать). И да, красивый вывод я не осилила, пробовала много всякого разного, в т.ч. стороннего. Увы.
+
+Закомментированные строки отражают мою попытку вывести уникальные ошибки, но я потерпела фиаско.
+
+Первая ходка файла всегда дает ошибку, потому что там стоят 1 вместо IP. Но у меня все ходки давали ошибки, потому что IP во всех трех сервисах постоянно меняется))
 
 ````
 #!/usr/bin/env python3
 
+import os
 import socket
+import ast
 
-list_servers = {1:'drive.google.com', 2:'mail.google.com', 3:'google.com'}
+file_list = os.popen("ls").read()
+file_list = file_list.split('\n')
+#print(file_list)
+if 'server_IPs.txt' in file_list:
+    pass
+else:
+    with open('server_IPs.txt', 'w') as file:
+        file.write("{'drive.google.com': '1', 'mail.google.com': '1', 'google.com': '1'}")
 
-def IP_get():
-    for key, value in list_servers:
-        old_IP = key
-        list_server[key] = [socket.gethostbyname(value)]
-        print(old_IP, ' - ', key)
-
-def IP_check():
-    for key, value in list_servers:
-        list_server = [socket.gethostbyname(server)]
-        IPs_old = [list_servers.keys()]
-        result = []
-        for newIP in IPs_new:
-            for oldIP in IPs_old:
-                if newIP != oldIP:
-                    print('[ERROR] ', server, ' IP mismatch: ', oldIP, ' - ',  newIP)
-                    continue
-
-IP_get()
-IP_check()
-
+with open('server_IPs.txt', 'r') as file:
+    servers = file.read()
+    #print(servers)
+    type = type(servers)
+    #print(type)
+    dict = ast.literal_eval(servers)
+    old_IPs = dict
+    new_IPs = dict
+#    errors = []
+    for key_new, value_new in new_IPs.items():
+        for key_old, value_old in old_IPs.items():
+            value_new = [socket.gethostbyname(key_new)]
+            new_IPs[key_new] = value_new
+            if value_new != value_old:
+                print('[ERROR] ', key_new, ' IP mismatch: ', value_old, ' - ', value_new, '\n')
+#                error = "'[ERROR] ', key_new, ' IP mismatch: ', value_old, ' - ', value_new, '\n'"
+#                errors.append(error)
+#    unique_error_list = []
+#    for i in errors:
+#        if i not in errors:
+#            unique_error_list.append(i)
+#    print(unique_error_list)
+#    error_message = "\n".join(str(x) for x in unique_error_list)
+    print(new_IPs)
+#    print(error_message)
+    result = str(new_IPs)
+    with open('server_IPs.txt', 'w') as old_file:
+        old_file.write(result)
 ````
-
-Я знаю, что этот скрипт выдает ошибку:
-
-Traceback (most recent call last):
-  File "42pythonscript1.py", line 24, in <module>
-    IP_get()
-  File "42pythonscript1.py", line 8, in IP_get
-    for key, value in list_servers:
-TypeError: cannot unpack non-iterable int object
-
-
-Я совсем не программист, и моих знаний не хватает, чтобы понять, что питон тут имеет в виду( Нужна помощь. Спасибо заранее за хинты!

@@ -52,20 +52,24 @@ for result in result_os.split('\n'):
 
 Не уверена, что нужна последняя итерация с добавлением \n опять в конец элементов, только иначе это не будет красивым списком.
 
+**Переделала скрипт, у меня гит лежит по этому адресу, все отработало корректно, включая полный путь. И даже проигнорировало неизмененные файлы**
+
 ````
-/#!/usr/bin/env python3
+#!/usr/bin/env python3
 
 import os
 
-bash_command = ["cd ~/netology/sysadm-homeworks", "git status -u --ignored --porcelain"]
+bash_command = ["cd ~/git/devops-netology", "git status -u --ignored --porcelain"]
 result_os = os.popen(' && '.join(bash_command)).read()
-    result_list = [result_os.split('\n')]
-    printable = [result[3:] for result in result_list]
-    b = '\n'
-    for key in printable.keys()
-        printable[key] = key + b
-    print(printable)
-    break
+result_list = result_os.split('\n')
+printable = [result[3:] for result in result_list]
+if len(printable) > 0:
+    path = os.popen('pwd').read()
+    print('Полный путь до директории: ', path, '\n', 'Измененные файлы:', '\n')
+    for item in printable:
+        if len(item) > 0:
+            print(item)
+    print('\n', 'Конец списка измененных файлов')
 ````
 
 **3. Доработать скрипт выше так, чтобы он мог проверять не только локальный репозиторий в текущей директории, а также умел воспринимать путь к репозиторию, который мы передаём как входной параметр. Мы точно знаем, что начальство коварное и будет проверять работу этого скрипта в директориях, которые не являются локальными репозиториями.**
@@ -76,30 +80,35 @@ result_os = os.popen(' && '.join(bash_command)).read()
 #!/usr/bin/env python3
 
 import os
+import sys
 
 path_to_repository = sys.argv[1]
+print(path_to_repository)
+cd_and_path = 'cd ' + path_to_repository
 bash_command = []
-bashcommand[0] = path_to_repository
-bash_command[1] = 'git status -u --ignored --porcelain'
+bash_command.insert(0, cd_and_path)
+bash_command.insert(1, 'git status -u --ignored --porcelain')
+print(bash_command)
 result_os = os.popen(' && '.join(bash_command)).read()
-    result_list = [result_os.split('\n')]
-    pre_printable = [result[3:] for result in result_list]
-    printable = '\n'.join(pre_printable)
-    print('Путь до репозитория: ', path_to_repository, '\nСписок измененных файлов:\n', printable)
-    break
+result_list = result_os.split('\n')
+printable = [result[3:] for result in result_list]
+if len(printable) > 0:
+    path = os.popen('pwd').read()
+    print('Полный путь до директории: ', path, '\n', 'Измененные файлы:', '\n')
+    for item in printable:
+        if len(item) > 0:
+            print(item)
+    print('\n', 'Конец списка измененных файлов')
 ````
 
-Я очень боюсь закопаться в мелких ошuбках и не успеть досдать задания, у меня осталось всего пара дней, чтобы не провалить весь курс. : ( Поэтому буду благодарна за отзыв, верный ли подход в целом и куда посмотреть, чтобы отладить все мои скрипты. Запускать их как файлики я стала по вышеуказанным причинам, обычно трачу на это несколько часов, но сейчас их просто нет((
+Переделала скрипт, должен работать. Испытывала на аргументе **~/git/devops-netology**, совсем относительный путь вводить не рисковала
 
 **4. Наша команда разрабатывает несколько веб-сервисов, доступных по http. Мы точно знаем, что на их стенде нет никакой балансировки, кластеризации, за DNS прячется конкретный IP сервера, где установлен сервис. Проблема в том, что отдел, занимающийся нашей инфраструктурой очень часто меняет нам сервера, поэтому IP меняются примерно раз в неделю, при этом сервисы сохраняют за собой DNS имена. Это бы совсем никого не беспокоило, если бы несколько раз сервера не уезжали в такой сегмент сети нашей компании, который недоступен для разработчиков. Мы хотим написать скрипт, который опрашивает веб-сервисы, получает их IP, выводит информацию в стандартный вывод в виде: <URL сервиса> - <его IP>. Также, должна быть реализована возможность проверки текущего IP сервиса c его IP из предыдущей проверки. Если проверка будет провалена - оповестить об этом в стандартный вывод сообщением: [ERROR] <URL сервиса> IP mismatch: <старый IP> <Новый IP>. Будем считать, что наша разработка реализовала сервисы: drive.google.com, mail.google.com, google.com.**
 
 **Ответ:**
 
-Вроде более-менее я победила эту штуку. Да, ошибки сыпятся по 3 штуки (я думаю, цикл проверки на совпадение IP сделан неоптимально, стоило сравнивать попарно, но я уже боюсь переделывать). И да, красивый вывод я не осилила, пробовала много всякого разного, в т.ч. стороннего. Увы.
-
-Закомментированные строки отражают мою попытку вывести уникальные ошибки, но я потерпела фиаско.
-
-Первая ходка файла всегда дает ошибку, потому что там стоят 1 вместо IP. Но у меня все ходки давали ошибки, потому что IP во всех трех сервисах постоянно меняется))
+Работает! Для ясности добавила статус "IP didn't change.", так понятнее.
+Теоретически, 2 словаря тут лишние и можно было бы справиться с одним IPs, а не с old и new. Но я не буду трогать, раз работает.
 
 ````
 #!/usr/bin/env python3
@@ -110,38 +119,25 @@ import ast
 
 file_list = os.popen("ls").read()
 file_list = file_list.split('\n')
-#print(file_list)
 if 'server_IPs.txt' in file_list:
     pass
 else:
     with open('server_IPs.txt', 'w') as file:
-        file.write("{'drive.google.com': '1', 'mail.google.com': '1', 'google.com': '1'}")
+        file.write("{'drive.google.com': 1, 'mail.google.com': 2, 'google.com': 3}")
 
 with open('server_IPs.txt', 'r') as file:
     servers = file.read()
-    #print(servers)
-    type = type(servers)
-    #print(type)
-    dict = ast.literal_eval(servers)
-    old_IPs = dict
-    new_IPs = dict
-#    errors = []
-    for key_new, value_new in new_IPs.items():
-        for key_old, value_old in old_IPs.items():
-            value_new = [socket.gethostbyname(key_new)]
-            new_IPs[key_new] = value_new
-            if value_new != value_old:
-                print('[ERROR] ', key_new, ' IP mismatch: ', value_old, ' - ', value_new, '\n')
-#                error = "'[ERROR] ', key_new, ' IP mismatch: ', value_old, ' - ', value_new, '\n'"
-#                errors.append(error)
-#    unique_error_list = []
-#    for i in errors:
-#        if i not in errors:
-#            unique_error_list.append(i)
-#    print(unique_error_list)
-#    error_message = "\n".join(str(x) for x in unique_error_list)
-    print(new_IPs)
-#    print(error_message)
+    dict_new = ast.literal_eval(servers)
+    old_IPs = dict_new
+    new_IPs = dict_new
+    key_list = old_IPs.keys()
+    for key in key_list:
+        temp = socket.gethostbyname(key)
+        if temp != old_IPs[key]:
+            print('[ERROR] ', key, ' IP mismatch: ', old_IPs[key], ' - ', temp, '\n')
+        else:
+                print(key, ' IP didn\'t change.\n')
+        new_IPs[key] = temp
     result = str(new_IPs)
     with open('server_IPs.txt', 'w') as old_file:
         old_file.write(result)

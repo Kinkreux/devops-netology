@@ -1,2 +1,8 @@
 .idea
-/dockercompose
+id_rsa
+id_rsa.pub
+.terraform/
+terraform.*
+.terraform.*
+dockercompose/
+dockerswarm/

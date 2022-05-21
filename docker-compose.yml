@@ -1,0 +1,21 @@
+version: "3.9"
+
+volumes:
+  db-data: {}
+  backup: {}
+
+services:
+
+  postgres:
+
+    image: postgres:12
+    volumes:
+     - db-data:/var/lib/postgresql/data
+     - backup:/dump
+    restart: always
+    environment:
+      POSTGRES_USER: pg
+      POSTGRES_PASSWORD: pass
+
+    ports:
+      - "5432:5432"

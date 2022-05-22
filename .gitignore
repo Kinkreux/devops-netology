@@ -6,3 +6,4 @@ terraform.*
 .terraform.*
 dockercompose/
 dockerswarm/
+6.4/
